@@ -113,14 +113,14 @@ async def create_upload_file(file: UploadFile = File(...)):
 #             "merged_url": demo_img_url, "msg": "success" }
 
 
+
 async def download_and_save_image(image_url: str):
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
-    }
-    async with httpx.AsyncClient() as client:
-        response = await client.get(image_url, headers=headers)
+    print('download_and_save_image: ', image_url)
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        response = await client.get(image_url)
     if response.status_code != 200:
         return None
+    
     # Load image with Pillow and convert to JPEG
     try:
         image = Image.open(BytesIO(response.content))
@@ -128,17 +128,41 @@ async def download_and_save_image(image_url: str):
         if image.mode != 'RGB':
             image = image.convert('RGB')
 
-        # Save image as jpg
-        image_filename = f"{uuid.uuid4()}.jpg"
-        image_path = os.path.join(images_directory, image_filename)
+        # Define dimensions for cropping
+        width, height = image.size
+        left = 0
+        top = 0
+        right = width // 2
+        bottom = height // 2
 
-        image.save(image_path, "JPEG")
-        return image_filename
+        # Create crop coordinates for each sub-image
+        coordinates = [
+            (left, top, right, bottom),  # top-left
+            (right, top, width, bottom),  # top-right
+            (left, bottom, right, height),  # bottom-left
+            (right, bottom, width, height)  # bottom-right
+        ]
+
+        image_filenames = []
+
+        # Crop and save each sub-image
+        for i, coord in enumerate(coordinates):
+            cropped_image = image.crop(coord)
+            image_filename = f"{uuid.uuid4()}.jpg"
+            image_path = os.path.join(images_directory, image_filename)
+            cropped_image.save(image_path, "JPEG")
+            image_filenames.append(f"{ADDRESS}/images/{image_filename}")
+
+        # Save the original image
+        original_filename = f"{uuid.uuid4()}.jpg"
+        original_path = os.path.join(images_directory, original_filename)
+        image.save(original_path, "JPEG")
+
+        return {"original": original_filename, "cropped": image_filenames}
 
     except Exception as e:
         print(f"An error occurred: {str(e)}")
         return None
-
 
 def url_to_filepath(url):
     filename = url.split("/")[-1]  # Extracts '20231014095827-ic_woman.png' from the URL
@@ -181,7 +205,6 @@ async def merge_image(user_url: str, demo_img_url: str):
         print(status)
         if status["progress"] == 100:
             merged_url = status["response"]["imageUrl"]
-            images = status["response"]["imageUrls"]
             break
         await asyncio.sleep(5)
     else:  # this block executes when the while loop exits normally (non-break)
@@ -198,7 +221,7 @@ async def merge_image(user_url: str, demo_img_url: str):
 
     return {
         "code": 200,
-        "images": images,
-        "merged_url": f"{ADDRESS}/images/{merged_filename}",
+        "images": merged_filename['cropped'],
+        "merged_url": f"{ADDRESS}/images/{merged_filename['original']}",
         "msg": "success",
     }

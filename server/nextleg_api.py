@@ -58,13 +58,13 @@ async def generate_image(url1, url2, prompt):
         'Authorization': f'Bearer {TOKEN}',
         'Content-Type': 'application/json'
     }
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=10.0) as client:
         response = await client.post("https://api.thenextleg.io/v2/imagine", headers=headers, data=payload)
     return response.json()
 
 async def get_status(id):
     headers = {'Authorization': f'Bearer {TOKEN}'}
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=10.0) as client:
         response = await client.get(f"https://api.thenextleg.io/v2/message/{id}", headers=headers)
     return response.json()
 
