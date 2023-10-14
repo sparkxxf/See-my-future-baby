@@ -111,15 +111,14 @@ def get_description():
     print(get_response)
 
     joined_description = ",".join([resp["description"] for _, resp in enumerate(get_response)])
-
+    name = get_response[0]['name']
     content = (f"use multiple contexts in <context></context> quote to generate response:"
                f"<context>{joined_description}</context>"
                f"strictly follow the format example, with header in the <context></context> quote"
                f"<context>性格兴趣：</context> 小时候的她，活泼且才华洋溢，怀揣音乐梦，她乐观的性格引领未来之路。"
                f"<context>养育成本：</context> 未来10年，你需要为孩子的音乐教育预算500万！"
-               f"生成以{traits}为性格的孩子的两句短话：")
+               f"生成以{traits}为性格,{name}为偶像的孩子的两句短话：")
 
-    content = content.replace("<context>", "").replace("</context>", "")
     print("\ncontent:")
     print(content)
     response = zhipuai.model_api.invoke(
@@ -130,8 +129,10 @@ def get_description():
     )
     print("\nresponse:")
     print(response)
-
-    return {"content": response["data"]["choices"][0]["content"]}
+    content = response["data"]["choices"][0]["content"]
+    content = content.replace("<context>", "").replace("</context>", "")
+    
+    return {"content": content}
 
 
 
