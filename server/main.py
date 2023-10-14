@@ -339,7 +339,7 @@ async def merge_image(user_url: str, demo_img_url: str):
     except Exception as e:
         print(f"An error occurred: {e}")
 
-    
+    print('result: ----', description, result_data)
     return {
         "description": description,
         "code": 200,
