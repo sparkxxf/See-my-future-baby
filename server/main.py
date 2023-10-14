@@ -136,6 +136,7 @@ def get_description():
     content = content.replace("<context>", "").replace("</context>", "")
     content = content.replace("\\\n", "\n").replace("\\n", "\n")
     content = content.replace("\"", "")
+    content = content.replace("她", "TA").replace("他", "TA")
     
     return content
 
