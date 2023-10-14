@@ -3,7 +3,7 @@ import requests
 import json
 import uuid
 
-TOKEN = 'ec77ccfb-67fd-45ec-be6e-d07bed123430'
+TOKEN = '309a03a2-9abd-456f-95bc-375fcb501b31'
                 
 import boto3, os
 from botocore.exceptions import NoCredentialsError
