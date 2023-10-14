@@ -342,7 +342,7 @@ async def merge_image(user_url: str, demo_img_url: str):
 
     print('result: ----', description, result_data)
     return {
-        "content": content,
+        "content": description,
         "code": 200,
         "images": result_data['images'],
         "merged_url": result_data['merged_url'],
