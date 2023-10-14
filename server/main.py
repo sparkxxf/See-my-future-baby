@@ -132,6 +132,7 @@ def get_description():
     content = response["data"]["choices"][0]["content"]
     content = content.replace("<context>", "").replace("</context>", "")
     content = content.replace("\\\n", "\n").replace("\\n", "\n")
+    content = content.replace("\"", "")
     
     return content
 
