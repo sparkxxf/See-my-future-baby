@@ -22,6 +22,45 @@ from pymilvus import MilvusClient
 import zhipuai
 
 
+BACKUP_IMG = [
+    {
+        "images": [
+            "http://18.163.103.199:8000/images/795c36e9-7c6c-4dfa-899b-4194cf4d0eff.jpg",
+            "http://18.163.103.199:8000/images/cadf495f-ee2d-42f1-9130-a9b7f5b2380f.jpg",
+            "http://18.163.103.199:8000/images/8e35529e-627b-4617-9853-5b7d96adc72e.jpg",
+            "http://18.163.103.199:8000/images/9b0cd9a3-e79b-4606-beef-e41be980fc1b.jpg"
+        ],
+        "merged_url": "http://18.163.103.199:8000/images/fa0ea8d1-181b-4660-a4f3-675e24adf9df.jpg",
+    },
+    {
+        "images": [
+            "http://18.163.103.199:8000/images/f49745a2-cf83-4850-9494-48ae272c3661.jpg",
+            "http://18.163.103.199:8000/images/07f502bc-874c-4f50-bb42-88217585c152.jpg",
+            "http://18.163.103.199:8000/images/29bf0818-6527-40cb-bae1-93c021edc2c7.jpg",
+            "http://18.163.103.199:8000/images/f9789649-3f6b-4aa2-9746-1518787c9c91.jpg"
+        ],
+        "merged_url": "http://18.163.103.199:8000/images/8e801cc3-77f4-4bd2-975b-78ab6f0f27ad.jpg",
+    },
+    {
+        "images": [
+            "http://18.163.103.199:8000/images/c07b747e-6cde-4865-a599-0ff2bcbf39a1.jpg",
+            "http://18.163.103.199:8000/images/8071c1bc-9496-45c3-88cb-dac5c53c4a74.jpg",
+            "http://18.163.103.199:8000/images/f09d8acf-322f-4046-9c23-f325b4521e71.jpg",
+            "http://18.163.103.199:8000/images/d60c643d-d5d2-4ee6-9bcc-f472dae1ecf4.jpg"
+        ],
+        "merged_url": "http://18.163.103.199:8000/images/caf5d911-519a-4f68-9a97-935d83f2fbf4.jpg",
+    },
+    {
+        "images": [
+            "http://18.163.103.199:8000/images/a05f9439-379d-4648-90cc-9e37b22265c9.jpg",
+            "http://18.163.103.199:8000/images/f76d7016-7fee-42c2-80fd-653a9676e699.jpg",
+            "http://18.163.103.199:8000/images/f1ba736c-20dd-41de-8137-e5a43931d297.jpg",
+            "http://18.163.103.199:8000/images/87ffe88a-a368-45e7-9165-17e0a2f0a072.jpg"
+        ],
+        "merged_url": "http://18.163.103.199:8000/images/2f37aa02-5a83-4438-a3eb-348372882a0c.jpg",
+    }
+]
+
 api_key = "2f782ccb712e4395ea69565ec3bd3d5d67c44ff4513fcb7e00b6da08ff151c670f85a4848813c67fc5e4a90329cd71cee8dcbc40"
 milvus_uri = "https://in03-5cac29c7c5c6f18.api.gcp-us-west1.zillizcloud.com"
 zhipuai.api_key = "1e987cc89e8fe21f963e913a0c3e6c30.f2uJtohLlyIc3fe0"
@@ -253,47 +292,46 @@ class ImageUrls(BaseModel):
 
 @app.post("/merge")
 async def merge_image(user_url: str, demo_img_url: str):
-# async def merge_image(data: ImageUrls):
-    # user_url = data.user_url
-    # demo_img_url = data.demo_img_url
 
+    result_data = random.choice(BACKUP_IMG)
+    async def merge_process():
+        # 1. Upload the images
+        url1 = upload_image(url_to_filepath(user_url))
+        url2 = upload_image(url_to_filepath(demo_img_url))
 
-    # 1. Upload the images
-    url1 = upload_image(url_to_filepath(user_url))
-    url2 = upload_image(url_to_filepath(demo_img_url))
+        # 2. Generate an image with the two uploaded images and a prompt
+        prompt_message = "4 years old little baby, cute, child of {url1} and {url2} --v 5"
+        res = await generate_image(url1, url2, prompt_message)
+        id = res["messageId"]
+        print(res)
 
-    # Check if images were uploaded successfully
-    if not url1 or not url2:
-        raise HTTPException(status_code=400, detail="Image upload failed!")
+        # 3. Check the status every 5 seconds, for up to 2 minutes
+        timeout = timedelta(minutes=2)
+        start_time = datetime.now()
 
-    # 2. Generate an image with the two uploaded images and a prompt
-    prompt_message = "4 years old little baby, cute, child of {url1} and {url2} --v 5"
-    res = await generate_image(url1, url2, prompt_message)
-    id = res["messageId"]
-    print(res)
+        while datetime.now() - start_time < timeout:
+            status = await get_status(id)
+            print(status)
+            if status["progress"] == 100:
+                merged_url = status["response"]["imageUrl"]
+                break
+            await asyncio.sleep(5)
 
-    # 3. Check the status every 5 seconds, for up to 2 minutes
-    timeout = timedelta(minutes=2)
-    start_time = datetime.now()
+        # Download and save the merged image locally
+        merged_filename = await download_and_save_image(merged_url)
+        result_data = {
+            "images": merged_filename['cropped'],
+            "merged_url": f"{ADDRESS}/images/{merged_filename['original']}",
+        }
+        return result_data
 
-    while datetime.now() - start_time < timeout:
-        status = await get_status(id)
-        print(status)
-        if status["progress"] == 100:
-            merged_url = status["response"]["imageUrl"]
-            break
-        await asyncio.sleep(5)
-    else:  # this block executes when the while loop exits normally (non-break)
-        raise HTTPException(status_code=400, detail="Image generation timed out!")
+    try:
+        result_data = await asyncio.wait_for(merge_process(), timeout=60)
+    except asyncio.TimeoutError:
+        print("Error: The merging process took too long!")
+    except Exception as e:
+        print(f"Error: {str(e)}")
 
-    # Download and save the merged image locally
-    merged_filename = await download_and_save_image(merged_url)
-    
-    # Download and save additional images locally
-    # local_image_urls = []
-    # for img_url in images:
-    #     filename = await download_and_save_image(img_url)
-    #     local_image_urls.append(f"/images/{filename}")
     description = (f"性格兴趣： 小时候的她，活泼且才华洋溢，怀揣音乐梦，她乐观的性格引领未来之路。"
                    f"养育成本： 未来10年，你需要为孩子的音乐教育预算500万！")
     try:
@@ -305,7 +343,7 @@ async def merge_image(user_url: str, demo_img_url: str):
     return {
         "description": description,
         "code": 200,
-        "images": merged_filename['cropped'],
-        "merged_url": f"{ADDRESS}/images/{merged_filename['original']}",
+        "images": result_data['images'],
+        "merged_url": result_data['merged_url'],
         "msg": "success",
     }
