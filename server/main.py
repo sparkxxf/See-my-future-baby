@@ -115,9 +115,9 @@ def get_description():
     content = (f"use multiple contexts in <context></context> quote to generate response:"
                f"<context>{joined_description}</context>"
                f"strictly follow the format example, with header in the <context></context> quote"
-               f"<context>性格兴趣：</context> 小时候的她，活泼且才华洋溢，怀揣音乐梦，她乐观的性格引领未来之路。"
+               f"<context>性格兴趣：</context> 小时候的她，活泼且才华洋溢，怀揣音乐梦，她乐观的性格引领未来之路。\n\n"
                f"<context>养育成本：</context> 未来10年，你需要为孩子的音乐教育预算500万！"
-               f"生成以{traits}为性格,{name}为偶像的孩子的两句短话：")
+               f"生成以{traits}为性格,{name}为偶像的孩子的两句短话，并以\n\n分割：")
 
     print("\ncontent:")
     print(content)
@@ -131,7 +131,7 @@ def get_description():
     print(response)
     content = response["data"]["choices"][0]["content"]
     content = content.replace("<context>", "").replace("</context>", "")
-    content = content.replace("\\n", "\n")
+    content = content.replace("\\\n", "\n").replace("\\n", "\n")
     
     return content
 
