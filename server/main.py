@@ -10,6 +10,7 @@ import os
 import random
 
 import httpx
+from pydantic import BaseModel
 
 from nextleg_api import generate_image, get_status, upload_image
 
@@ -132,8 +133,15 @@ def url_to_filepath(url):
     return filepath
 
 
+class ImageUrls(BaseModel):
+    user_url: str
+    demo_img_url: str
+
+
 @app.post("/merge")
-async def merge_image(user_url: str, demo_img_url: str):
+async def merge_image(data: ImageUrls):
+    user_url = data.user_url
+    demo_img_url = data.demo_img_url
     # 1. Upload the images
     url1 = upload_image(url_to_filepath(user_url))
     url2 = upload_image(url_to_filepath(demo_img_url))
