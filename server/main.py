@@ -58,7 +58,7 @@ def get_description():
     search_response = client.search(
         collection_name="celebrity",
         data=[embedding],
-        limit=2,
+        limit=1,
         output_fields=["name"])[0]
     print("\nsearch_response:")
     print(search_response)
