@@ -92,7 +92,7 @@ async def create_upload_file(file: UploadFile = File(...)):
 
         with open(os.path.join(images_directory, filename), "wb") as fp:
             fp.write(contents)
-        return {"code": 200, "result": "{ADDRESS}/images/" + filename, "msg": "success"}
+        return {"code": 200, "result": f"{ADDRESS}/images/" + filename, "msg": "success"}
     except Exception as e:
         print(f"Error: {e}")  # print out the error
         raise HTTPException(status_code=400, detail="File upload failed.")
