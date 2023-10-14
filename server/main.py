@@ -18,6 +18,82 @@ import zhipuai
 from fastapi.responses import FileResponse
 from PIL import Image
 from io import BytesIO
+from pymilvus import MilvusClient
+import zhipuai
+
+
+api_key = "2f782ccb712e4395ea69565ec3bd3d5d67c44ff4513fcb7e00b6da08ff151c670f85a4848813c67fc5e4a90329cd71cee8dcbc40"
+milvus_uri = "https://in03-5cac29c7c5c6f18.api.gcp-us-west1.zillizcloud.com"
+zhipuai.api_key = "1e987cc89e8fe21f963e913a0c3e6c30.f2uJtohLlyIc3fe0"
+
+client = MilvusClient(uri=milvus_uri, token=api_key)
+child_personality_traits = [
+    "活泼",
+    "好奇",
+    "天真",
+    "有创造力",
+    "勤奋",
+    "敢于尝试",
+    "乐观",
+    "独立",
+    "友善",
+    "坚韧"
+]
+
+
+def get_description():
+    chosen_traits = random.sample(child_personality_traits, 3)
+
+    traits = ",".join(chosen_traits)
+
+    print("\ntraits:")
+    print(traits)
+    embedding_response = zhipuai.model_api.invoke(
+        model="text_embedding",
+        prompt=traits,
+    )
+    print("\nembedding_response:")
+    print(embedding_response)
+    embedding = embedding_response["data"]["embedding"]
+    search_response = client.search(
+        collection_name="celebrity",
+        data=[embedding],
+        limit=2,
+        output_fields=["name"])[0]
+    print("\nsearch_response:")
+    print(search_response)
+
+    ids = [resp["id"] for _, resp in enumerate(search_response)]
+    print("\nids:")
+    print(ids)
+    get_response = client.get(
+        collection_name="celebrity", ids=ids)
+    print("\nget_response:")
+    print(get_response)
+
+    joined_description = ",".join([resp["description"] for _, resp in enumerate(get_response)])
+
+    content = (f"use multiple contexts in <context></context> quote to generate response:"
+               f"<context>{joined_description}</context>"
+               f"strictly follow the format example, with header in the <context></context> quote"
+               f"<context>性格兴趣：</context> 小时候的她，活泼且才华洋溢，怀揣音乐梦，她乐观的性格引领未来之路。"
+               f"<context>养育成本：</context> 未来10年，你需要为孩子的音乐教育预算500万！"
+               f"生成以{traits}为性格的孩子的两句短话：")
+
+    content = content.replace("<context>", "").replace("</context>", "")
+    print("\ncontent:")
+    print(content)
+    response = zhipuai.model_api.invoke(
+        model="chatglm_pro",
+        prompt=[{"role": "user", "content": content}],
+        top_p=0.7,
+        temperature=0.9,
+    )
+    print("\nresponse:")
+    print(response)
+
+    return {"content": response["data"]["choices"][0]["content"]}
+
 
 
 app = FastAPI(docs_url="/docs")
@@ -195,8 +271,16 @@ async def merge_image(user_url: str, demo_img_url: str):
     # for img_url in images:
     #     filename = await download_and_save_image(img_url)
     #     local_image_urls.append(f"/images/{filename}")
+    description = (f"性格兴趣： 小时候的她，活泼且才华洋溢，怀揣音乐梦，她乐观的性格引领未来之路。"
+                   f"养育成本： 未来10年，你需要为孩子的音乐教育预算500万！")
+    try:
+        description = get_description()
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
+    
     return {
+        "description": description,
         "code": 200,
         "images": images,
         "merged_url": f"{ADDRESS}/images/{merged_filename}",
