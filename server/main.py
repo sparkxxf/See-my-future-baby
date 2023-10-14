@@ -16,7 +16,8 @@ from nextleg_api import generate_image, get_status, upload_image
 
 import zhipuai
 from fastapi.responses import FileResponse
-import aiofiles
+from PIL import Image
+from io import BytesIO
 
 
 app = FastAPI(docs_url="/docs")
@@ -112,19 +113,31 @@ async def create_upload_file(file: UploadFile = File(...)):
 #             "merged_url": demo_img_url, "msg": "success" }
 
 
-async def download_and_save_image(image_url: str, image_filename: str):
+async def download_and_save_image(image_url: str):
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
+    }
     async with httpx.AsyncClient() as client:
-        response = await client.get(image_url)
-
+        response = await client.get(image_url, headers=headers)
     if response.status_code != 200:
         return None
+    # Load image with Pillow and convert to JPEG
+    try:
+        image = Image.open(BytesIO(response.content))
+        # Convert image to RGB if it's in a different mode
+        if image.mode != 'RGB':
+            image = image.convert('RGB')
 
-    image_path = os.path.join(images_directory, image_filename)
+        # Save image as jpg
+        image_filename = f"{uuid.uuid4()}.jpg"
+        image_path = os.path.join(images_directory, image_filename)
 
-    with open(image_path, "wb") as f:
-        f.write(response.content)
+        image.save(image_path, "JPEG")
+        return image_filename
 
-    return image_path
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+        return None
 
 
 def url_to_filepath(url):
@@ -143,6 +156,8 @@ async def merge_image(user_url: str, demo_img_url: str):
 # async def merge_image(data: ImageUrls):
     # user_url = data.user_url
     # demo_img_url = data.demo_img_url
+
+
     # 1. Upload the images
     url1 = upload_image(url_to_filepath(user_url))
     url2 = upload_image(url_to_filepath(demo_img_url))
@@ -173,19 +188,17 @@ async def merge_image(user_url: str, demo_img_url: str):
         raise HTTPException(status_code=400, detail="Image generation timed out!")
 
     # Download and save the merged image locally
-    merged_filename = f"{uuid.uuid4()}.jpg"
-    await download_and_save_image(merged_url, merged_filename)
-
+    merged_filename = await download_and_save_image(merged_url)
+    
     # Download and save additional images locally
-    local_image_urls = []
-    for img_url in images:
-        filename = f"{uuid.uuid4()}.jpg"
-        await download_and_save_image(img_url, filename)
-        local_image_urls.append(f"{ADDRESS}/images/{filename}")
+    # local_image_urls = []
+    # for img_url in images:
+    #     filename = await download_and_save_image(img_url)
+    #     local_image_urls.append(f"/images/{filename}")
 
     return {
         "code": 200,
-        "images": local_image_urls,
+        "images": images,
         "merged_url": f"{ADDRESS}/images/{merged_filename}",
         "msg": "success",
     }
