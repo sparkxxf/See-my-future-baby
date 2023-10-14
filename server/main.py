@@ -132,7 +132,7 @@ def get_description():
     content = response["data"]["choices"][0]["content"]
     content = content.replace("<context>", "").replace("</context>", "")
     
-    return {"content": content}
+    return content
 
 
 
@@ -342,7 +342,7 @@ async def merge_image(user_url: str, demo_img_url: str):
 
     print('result: ----', description, result_data)
     return {
-        "description": description,
+        "content": content,
         "code": 200,
         "images": result_data['images'],
         "merged_url": result_data['merged_url'],
