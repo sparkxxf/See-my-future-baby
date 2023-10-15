@@ -8,13 +8,10 @@ TOKEN = '309a03a2-9abd-456f-95bc-375fcb501b31'
 import boto3, os
 from botocore.exceptions import NoCredentialsError
 
-ACCESS_KEY = 'AKIA25EHHD56THMKKO2Y'
-SECRET_KEY = '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'
 BUCKET_NAME = 'mantastore'
 
 def upload_image(image_path):
-    s3 = boto3.client('s3', aws_access_key_id=ACCESS_KEY,
-                      aws_secret_access_key=SECRET_KEY)
+    s3 = boto3.client('s3')
 
     # Determine content type based on file extension
     content_type = ''
