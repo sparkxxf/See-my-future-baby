@@ -89,7 +89,6 @@ child_vocation = [
     "企业家",
     "音乐家",
     "影星",
-    "人民公仆",
 ]
 
 
@@ -111,7 +110,7 @@ def get_description():
     search_response = client.search(
         collection_name="celebrity",
         data=[embedding],
-        limit=1,
+        limit=2,
         output_fields=["name"])[0]
     print("\nsearch_response:")
     print(search_response)
@@ -125,7 +124,7 @@ def get_description():
     print(get_response)
 
     joined_description = ",".join([resp["description"] for _, resp in enumerate(get_response)])
-    name = get_response[0]['name']
+    name = ",".join([resp["name"] for _, resp in enumerate(get_response)])
     content = (f"use multiple contexts in <context></context> quote to generate response:"
                f"<context>{joined_description}</context>"
                f"strictly follow the format example, with header in the <context></context> quote"
