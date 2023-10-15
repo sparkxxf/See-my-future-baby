@@ -21,45 +21,45 @@ from io import BytesIO
 from pymilvus import MilvusClient
 import zhipuai
 
+BACKUP_FILE = "backup_img.json"
+backup_lock = asyncio.Lock()
 
-BACKUP_IMG = [
-    {
-        "images": [
-            "http://18.163.103.199:8000/images/795c36e9-7c6c-4dfa-899b-4194cf4d0eff.jpg",
-            "http://18.163.103.199:8000/images/cadf495f-ee2d-42f1-9130-a9b7f5b2380f.jpg",
-            "http://18.163.103.199:8000/images/8e35529e-627b-4617-9853-5b7d96adc72e.jpg",
-            "http://18.163.103.199:8000/images/9b0cd9a3-e79b-4606-beef-e41be980fc1b.jpg"
-        ],
-        "merged_url": "http://18.163.103.199:8000/images/fa0ea8d1-181b-4660-a4f3-675e24adf9df.jpg",
-    },
-    {
-        "images": [
-            "http://18.163.103.199:8000/images/f49745a2-cf83-4850-9494-48ae272c3661.jpg",
-            "http://18.163.103.199:8000/images/07f502bc-874c-4f50-bb42-88217585c152.jpg",
-            "http://18.163.103.199:8000/images/29bf0818-6527-40cb-bae1-93c021edc2c7.jpg",
-            "http://18.163.103.199:8000/images/f9789649-3f6b-4aa2-9746-1518787c9c91.jpg"
-        ],
-        "merged_url": "http://18.163.103.199:8000/images/8e801cc3-77f4-4bd2-975b-78ab6f0f27ad.jpg",
-    },
-    {
-        "images": [
-            "http://18.163.103.199:8000/images/c07b747e-6cde-4865-a599-0ff2bcbf39a1.jpg",
-            "http://18.163.103.199:8000/images/8071c1bc-9496-45c3-88cb-dac5c53c4a74.jpg",
-            "http://18.163.103.199:8000/images/f09d8acf-322f-4046-9c23-f325b4521e71.jpg",
-            "http://18.163.103.199:8000/images/d60c643d-d5d2-4ee6-9bcc-f472dae1ecf4.jpg"
-        ],
-        "merged_url": "http://18.163.103.199:8000/images/caf5d911-519a-4f68-9a97-935d83f2fbf4.jpg",
-    },
-    {
-        "images": [
-            "http://18.163.103.199:8000/images/a05f9439-379d-4648-90cc-9e37b22265c9.jpg",
-            "http://18.163.103.199:8000/images/f76d7016-7fee-42c2-80fd-653a9676e699.jpg",
-            "http://18.163.103.199:8000/images/f1ba736c-20dd-41de-8137-e5a43931d297.jpg",
-            "http://18.163.103.199:8000/images/87ffe88a-a368-45e7-9165-17e0a2f0a072.jpg"
-        ],
-        "merged_url": "http://18.163.103.199:8000/images/2f37aa02-5a83-4438-a3eb-348372882a0c.jpg",
-    }
-]
+# Load BACKUP_IMG from a file
+try:
+    with open(BACKUP_FILE, 'r') as file:
+        BACKUP_IMG = json.load(file)
+except (FileNotFoundError, json.JSONDecodeError):
+    BACKUP_IMG = []
+
+MAX_BACKUP_IMG_SIZE = 100
+
+async def manage_and_save_backup_img(new_data):
+    """
+    Manages the BACKUP_IMG list: appending new data, ensuring the data doesn't exceed 
+    the maximum size, and saves it to a file.
+    
+    Parameters:
+        new_data (dict): New data to append to BACKUP_IMG
+    
+    Returns:
+        None
+    """
+    global BACKUP_IMG  # to modify the global variable
+    
+    # Add the new data to BACKUP_IMG
+    BACKUP_IMG.append(new_data)
+    
+    # Ensure that BACKUP_IMG doesn't exceed the maximum size
+    while len(BACKUP_IMG) > MAX_BACKUP_IMG_SIZE:
+        # Randomly shuffle the list and remove an item
+        random.shuffle(BACKUP_IMG)
+        BACKUP_IMG.pop()
+    
+    # Save BACKUP_IMG to a file with a lock
+    async with backup_lock:
+        with open(BACKUP_FILE, 'w') as file:
+            json.dump(BACKUP_IMG, file)
+
 
 api_key = "2f782ccb712e4395ea69565ec3bd3d5d67c44ff4513fcb7e00b6da08ff151c670f85a4848813c67fc5e4a90329cd71cee8dcbc40"
 milvus_uri = "https://in03-5cac29c7c5c6f18.api.gcp-us-west1.zillizcloud.com"
@@ -343,7 +343,8 @@ async def merge_image(user_url: str, demo_img_url: str):
         return result_data
 
     try:
-        result_data = await asyncio.wait_for(merge_process(), timeout=90)
+        result_data = await asyncio.wait_for(merge_process(), timeout=80)
+        await manage_and_save_backup_img(result_data)
     except asyncio.TimeoutError:
         print("Error: The merging process took too long!")
     except Exception as e:
