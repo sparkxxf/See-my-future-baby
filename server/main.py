@@ -80,6 +80,9 @@ child_personality_traits = [
     "戏剧性的",
     "自由的",
     "有责任感的",
+]
+
+child_vocation = [
     "诗人",
     "作家",
     "科学家",
@@ -92,11 +95,12 @@ child_personality_traits = [
 
 def get_description():
     chosen_traits = random.sample(child_personality_traits, 3)
-
+    chosen_vocation = random.sample(child_vocation, 1)
     traits = ",".join(chosen_traits)
-
+    vocation = ",".join(chosen_vocation)
+    
     print("\ntraits:")
-    print(traits)
+    print(traits+","+vocation)
     embedding_response = zhipuai.model_api.invoke(
         model="text_embedding",
         prompt=traits,
