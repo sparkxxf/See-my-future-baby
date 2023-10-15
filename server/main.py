@@ -152,7 +152,7 @@ def get_description():
 
 
 
-app = FastAPI(docs_url="/docs")
+app = FastAPI(docs_url="/xagixdoc")
 
 
 from fastapi.middleware.cors import CORSMiddleware
