@@ -197,7 +197,7 @@ def read_root():
 @app.get("/get_content")
 def get_content():
     response = {
-        "content": description
+        "content": get_description()
     }
 
     return response
