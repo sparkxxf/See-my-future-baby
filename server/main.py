@@ -287,6 +287,20 @@ def generate_payment_link(img_url: str, price: str):
     }
 
 
+@app.get("/notification_endpoint")
+async def process_notification(notify_request: NotifyRequest):
+    print("notify_request:", notify_request)
+    # From here, you can process the notification.
+    if notify_request.trade_status == TradeStatus.trade_success:
+        # Process success payment notification
+        # For example, update your database record for the order using `notify_request.out_trade_no`
+        pass
+    else:
+        # Handle other payment states
+        pass
+
+    return {"detail": "Notification processed"}
+
 
 
 images_directory = "user-imgs"
