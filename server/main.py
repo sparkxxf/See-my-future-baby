@@ -278,12 +278,12 @@ def generate_payment_qrcode(img_url: str, price: str):
     response.raise_for_status()
 
     # Retrieve the payment URL
-    qrcode = json.loads(response.content)['qrcode']
+    payurl = json.loads(response.content)['payurl']
     trade_no = json.loads(response.content)['trade_no']
 
     return {
         "trade_no": trade_no,
-        "qrcode": qrcode
+        "payurl": payurl
     }
 
 
