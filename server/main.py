@@ -193,14 +193,11 @@ def read_root():
     return {"Hello": "World", "response": response}
 
 
-# get child personality text & similar celeb text & image
-@app.get("/child_personality/{parent_name}")
-def read_personality(parent_name):
-    personality = "非常可爱的小孩"
+# get child content
+@app.get("/get_content")
+def get_content:
     response = {
-        "child_id": uuid.uuid4(),
-        "parent_name": parent_name,
-        "personality": personality,
+        "content": description
     }
 
     return response
