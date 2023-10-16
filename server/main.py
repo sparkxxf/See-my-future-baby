@@ -241,15 +241,15 @@ TEST_KEY = "WBZHZWBeheKhWZcKuGRlb8lKWzwCWUeH"
 TEST_PID = 1000
 
 
-@app.post("/generate_payment_link")
-def generate_payment_link(img_url: str, price: str):
+@app.post("/generate_payment_qrcode")
+def generate_payment_qrcode(img_url: str, price: str):
     pid = TEST_PID  # Your merchant ID
     out_trade_no = generate_out_trade_no(img_url)
     notify_url = "http://18.163.103.199:8000/notification_endpoint"
     return_url = "http://18.163.103.199:8000/return_url.php"
     name = "Test"  # Or any product name
     clientip = "127.0.0.1"  # Or any suitable client IP retrieval
-    device = "pc"  # Or any device determining mechanism string
+    device = "mobile"  # Or any device determining mechanism string
     sign_type = "MD5"
 
     # Prepare data for sign generation
@@ -278,12 +278,12 @@ def generate_payment_link(img_url: str, price: str):
     response.raise_for_status()
 
     # Retrieve the payment URL
-    payurl = json.loads(response.content)['payurl']
+    qrcode = json.loads(response.content)['qrcode']
     trade_no = json.loads(response.content)['trade_no']
 
     return {
         "trade_no": trade_no,
-        "payurl": payurl
+        "qrcode": qrcode
     }
 
 
