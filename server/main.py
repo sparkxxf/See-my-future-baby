@@ -109,6 +109,7 @@ def get_description():
     chosen_cost = random.sample(child_cost, 1)
     traits = ",".join(chosen_traits)
     vocation = ",".join(chosen_vocation)
+    cost = ",".join(chosen_cost)
     
     print("\ntraits:")
     print(traits+","+vocation)
@@ -159,7 +160,7 @@ def get_description():
     content = content.replace("\\\n", "\n").replace("\\n", "\n")
     content = content.replace("\"", "")
     content = content.replace("她", "TA").replace("他", "TA")
-    content = content.replace("500", chosen_cost)
+    content = content.replace("500", cost)
     
     return content
 
