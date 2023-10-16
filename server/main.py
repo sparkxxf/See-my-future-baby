@@ -91,10 +91,22 @@ child_vocation = [
     "影星",
 ]
 
+child_cost = [
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+    "900",
+    "1000",
+]
+
 
 def get_description():
     chosen_traits = random.sample(child_personality_traits, 3)
     chosen_vocation = random.sample(child_vocation, 1)
+    chosen_cost = random.sample(child_cost, 1)
     traits = ",".join(chosen_traits)
     vocation = ",".join(chosen_vocation)
     
@@ -147,6 +159,7 @@ def get_description():
     content = content.replace("\\\n", "\n").replace("\\n", "\n")
     content = content.replace("\"", "")
     content = content.replace("她", "TA").replace("他", "TA")
+    content = content.replace("500", chosen_cost)
     
     return content
 
