@@ -125,7 +125,7 @@ def get_description():
         prompt=traits,
     )
     print("\nembedding_response:")
-    print(embedding_response)
+    # print(embedding_response)
     embedding = embedding_response["data"]["embedding"]
     search_response = client.search(
         collection_name="celebrity",
@@ -133,7 +133,7 @@ def get_description():
         limit=2,
         output_fields=["name"])[0]
     print("\nsearch_response:")
-    print(search_response)
+    # print(search_response)
 
     ids = [resp["id"] for _, resp in enumerate(search_response)]
     print("\nids:")
@@ -141,7 +141,7 @@ def get_description():
     get_response = client.get(
         collection_name="celebrity", ids=ids)
     print("\nget_response:")
-    print(get_response)
+    # print(get_response)
 
     joined_description = ",".join([resp["description"] for _, resp in enumerate(get_response)])
     name = ",".join([resp["name"] for _, resp in enumerate(get_response)])
@@ -161,7 +161,7 @@ def get_description():
         temperature=0.9,
     )
     print("\nresponse:")
-    print(response)
+    # print(response)
     content = response["data"]["choices"][0]["content"]
     content = content.replace("<context>", "").replace("</context>", "")
     content = content.replace("\\\n", "\n").replace("\\n", "\n")
