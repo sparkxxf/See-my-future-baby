@@ -195,7 +195,7 @@ def read_root():
 
 # get child content
 @app.get("/get_content")
-def get_content:
+def get_content():
     response = {
         "content": description
     }
