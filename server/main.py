@@ -19,7 +19,14 @@ from fastapi.responses import FileResponse
 from PIL import Image
 from io import BytesIO
 from pymilvus import MilvusClient
-import zhipuai
+
+import requests
+from typing import Dict
+import hashlib
+from pydantic import BaseModel, Field, validator
+from fastapi import HTTPException
+from enum import Enum
+
 
 BACKUP_FILE = "backup_img.json"
 backup_lock = asyncio.Lock()
@@ -204,8 +211,82 @@ def get_content():
     return response
 
 
-def get_similar_celeb():
-    return
+def generate_sign(data: Dict[str, str], key: str) -> str:
+    # Remove sign, sign_type and empty values
+    valid_data = {k: v for k, v in data.items() if k not in ("sign", "sign_type") and v is not None}
+
+    # Sort the data by key
+    sorted_data = dict(sorted(valid_data.items()))
+
+    # Concatenate the sorted data into a single string with the format a=b&c=d
+    data_string = "&".join(f"{k}={v}" for k, v in sorted_data.items())
+
+    # Append the key
+    data_string += key
+
+    # Create the MD5 signature
+    md5 = hashlib.md5()
+    md5.update(data_string.encode())
+    sign = md5.hexdigest().lower()  # Ensure the result is in lowercase
+
+    return sign
+
+
+def generate_out_trade_no(img_url: str) -> str:
+    # Implement your trade number generation here
+    return img_url
+
+
+TEST_KEY = "WBZHZWBeheKhWZcKuGRlb8lKWzwCWUeH"
+TEST_PID = 1000
+
+
+@app.post("/generate_payment_link")
+def generate_payment_link(img_url: str, price: str):
+    pid = TEST_PID  # Your merchant ID
+    out_trade_no = generate_out_trade_no(img_url)
+    notify_url = "http://18.163.103.199:8000/notification_endpoint"
+    return_url = "http://18.163.103.199:8000/return_url.php"
+    name = "Test"  # Or any product name
+    clientip = "127.0.0.1"  # Or any suitable client IP retrieval
+    device = "pc"  # Or any device determining mechanism string
+    sign_type = "MD5"
+
+    # Prepare data for sign generation
+    data = {
+        'pid': pid,
+        'type': 'wxpay',
+        'out_trade_no': out_trade_no,
+        'notify_url': notify_url,
+        'return_url': return_url,
+        'name': name,
+        'money': "0.01",
+        'clientip': clientip,
+        'device': device,
+        'sign_type': sign_type
+    }
+
+    # Generate sign and add it to data
+    data['sign'] = generate_sign(data, key=TEST_KEY)
+
+    # Make the payment request
+    response = requests.post("https://api.payqqpay.cn/mapi.php", data=data)
+    print("response:", response.content)
+    json.loads(response.content)
+
+    # Ensure the request was successful
+    response.raise_for_status()
+
+    # Retrieve the payment URL
+    payurl = json.loads(response.content)['payurl']
+    trade_no = json.loads(response.content)['trade_no']
+
+    return {
+        "trade_no": trade_no,
+        "payurl": payurl
+    }
+
+
 
 
 images_directory = "user-imgs"
