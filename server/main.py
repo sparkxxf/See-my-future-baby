@@ -287,6 +287,38 @@ def generate_payment_qrcode(img_url: str, price: str):
     }
 
 
+class PaymentType(str, Enum):
+    alipay = "alipay"
+    wxpay = "wxpay"
+    qqpay = "qqpay"
+    jdpay = "jdpay"
+
+
+class TradeStatus(str, Enum):
+    trade_success = "TRADE_SUCCESS"
+
+
+class NotifyRequest(BaseModel):
+    pid: int
+    trade_no: str = Field(alias='trade_no')
+    out_trade_no: str = Field(alias='out_trade_no')
+    type: PaymentType
+    name: str = None
+    money: str
+    trade_status: TradeStatus
+    param: str = None
+    sign: str
+    sign_type: str
+
+    # @validator('sign', always=True)
+    # def validate_sign(cls, v, values, **kwargs):
+    #     if 'pid' in values and 'trade_no' in values:
+    #         generated_sign = generate_sign(values, KEY)  # replace KEY with your merchant key
+    #         if v != generated_sign:
+    #             raise ValueError('Invalid sign')
+    #     return v
+
+
 @app.get("/notification_endpoint")
 async def process_notification(notify_request: NotifyRequest):
     print("notify_request:", notify_request)
