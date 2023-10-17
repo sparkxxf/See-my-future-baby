@@ -504,3 +504,10 @@ async def merge_image(user_url: str, demo_img_url: str):
         "merged_url": result_data['merged_url'],
         "msg": "success",
     }
+
+@app.get("/visit-count")
+def get_visit_count():
+    with open("visit_log.txt", "a") as file:
+        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        file.write(f"{current_time}\n")
+    return {"status": "Logged visit"}
