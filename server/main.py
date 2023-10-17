@@ -239,11 +239,12 @@ def generate_out_trade_no(img_url: str) -> str:
 
 TEST_KEY = "WBZHZWBeheKhWZcKuGRlb8lKWzwCWUeH"
 TEST_PID = 1000
-
+PAY_API_KEY = "zKGn788HKhwgDZj7h08KW7GhHhhHKdYH"
+PAY_PID = 2833
 
 @app.post("/generate_payment_qrcode")
 def generate_payment_qrcode(img_url: str, price: str):
-    pid = TEST_PID  # Your merchant ID
+    pid = PAY_PID  # Your merchant ID
     out_trade_no = generate_out_trade_no(img_url)
     notify_url = "http://18.163.103.199:8000/notification_endpoint"
     return_url = "http://18.163.103.199:8000/return_url.php"
@@ -267,7 +268,7 @@ def generate_payment_qrcode(img_url: str, price: str):
     }
 
     # Generate sign and add it to data
-    data['sign'] = generate_sign(data, key=TEST_KEY)
+    data['sign'] = generate_sign(data, key=PAY_API_KEY)
 
     # Make the payment request
     response = requests.post("https://api.payqqpay.cn/mapi.php", data=data)
