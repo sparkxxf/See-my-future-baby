@@ -242,6 +242,41 @@ TEST_PID = 1000
 PAY_API_KEY = "zKGn788HKhwgDZj7h08KW7GhHhhHKdYH"
 PAY_PID = 2833
 
+
+@app.post("/create_payment")
+async def create_payment(img_url: str, money: str):
+    # 商户ID，需要填写真实的
+    pid = PAY_PID
+
+    # 商户订单号，这里只是示例，你需要生成一个唯一的订单号
+    out_trade_no = '20160806151343349'
+
+    # 这两个URL需要改为真实的URL
+    notify_url = "http://18.163.103.199:8000/notification_endpoint"
+    return_url = "http://18.163.103.199:8000/return_url.php"
+
+    # 商品名称，改为实际需要的
+    name = img_url
+
+    data = {
+        'pid': pid,
+        'type': 'wxpay',
+        'out_trade_no': out_trade_no,
+        'notify_url': notify_url,
+        'return_url': return_url,
+        'name': name,
+        'money': "0.01",
+        'sitename': "miaowa",
+        'sign_type': 'MD5'
+    }
+    # Generate sign and add it to data
+    data['sign'] = generate_sign(data, key=PAY_API_KEY)
+
+    response = requests.post('https://api.payqqpay.cn/submit.php', data=data)
+
+    # 这里我们仅返回支付接口的响应，你可以根据需求定制返回内容
+    return response.content
+
 @app.post("/generate_payment_qrcode")
 def generate_payment_qrcode(img_url: str, price: str):
     pid = PAY_PID  # Your merchant ID
