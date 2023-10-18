@@ -150,7 +150,7 @@ def get_description():
                f"strictly follow the format example, with header in the <context></context> quote"
                f"<context>性格兴趣：</context> 小时候的她，活泼且才华洋溢，怀揣音乐梦，她乐观的性格引领未来之路。\n\n"
                f"<context>养育成本：</context> 未来10年，你需要为孩子的音乐教育预算500万！"
-               f"生成以{traits}为性格,{name}为偶像的孩子的两句短话，并以\n\n分割：")
+               f"生成以{traits}为性格,{name}为偶像的孩子的两句短话：")
 
     print("\ncontent:")
     print(content)
