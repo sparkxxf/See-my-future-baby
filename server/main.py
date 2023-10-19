@@ -269,6 +269,9 @@ async def create_payment(img_url: str, money: str):
         'sitename': "miaowa",
         'sign_type': 'MD5'
     }
+    # Generate sign and add it to data
+    data['sign'] = generate_sign(data, key=PAY_API_KEY)
+
     
     url = f"https://api.payqqpay.cn/submit.php?pid={pid}&type=wxpay&out_trade_no={out_trade_no}" \
           f"&notify_url={notify_url}&return_url={return_url}&name={name}&money=0.01&sitename=miaowa&sign={data['sign']}&sign_type=MD5"
