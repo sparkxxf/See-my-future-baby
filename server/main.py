@@ -257,10 +257,11 @@ async def create_payment(img_url: str, money: str):
 
     # 商品名称，改为实际需要的
     name = img_url
+    type = 'wxpay'
 
     data = {
         'pid': pid,
-        'type': 'wechat',
+        'type': type,
         'out_trade_no': out_trade_no,
         'notify_url': notify_url,
         'return_url': return_url,
@@ -273,7 +274,7 @@ async def create_payment(img_url: str, money: str):
     data['sign'] = generate_sign(data, key=PAY_API_KEY)
 
     
-    url = f"https://api.payqqpay.cn/submit.php?pid={pid}&type=wxpay&out_trade_no={out_trade_no}" \
+    url = f"https://api.payqqpay.cn/submit.php?pid={pid}&type={type}&out_trade_no={out_trade_no}" \
           f"&notify_url={notify_url}&return_url={return_url}&name={name}&money=0.01&sitename=miaowa&sign={data['sign']}&sign_type=MD5"
     print(f"url: {url}")
     response = requests.post('https://api.payqqpay.cn/submit.php', data=data)
@@ -296,9 +297,10 @@ async def create_payment_url(img_url: str, money: str):
     # 商品名称，改为实际需要的
     name = img_url
 
+    type = 'alipay'
     data = {
         'pid': pid,
-        'type': 'alipay',
+        'type': type,
         'out_trade_no': out_trade_no,
         'notify_url': notify_url,
         'return_url': return_url,
@@ -311,7 +313,7 @@ async def create_payment_url(img_url: str, money: str):
     data['sign'] = generate_sign(data, key=PAY_API_KEY)
 
     
-    url = f"https://api.payqqpay.cn/submit.php?pid={pid}&type=wxpay&out_trade_no={out_trade_no}" \
+    url = f"https://api.payqqpay.cn/submit.php?pid={pid}&type={type}&out_trade_no={out_trade_no}" \
           f"&notify_url={notify_url}&return_url={return_url}&name={name}&money=0.01&sitename=miaowa&sign={data['sign']}&sign_type=MD5"
     print(f"url: {url}")
     # response = requests.post('https://api.payqqpay.cn/submit.php', data=data)
