@@ -253,7 +253,7 @@ async def create_payment(img_url: str, money: str):
 
     # 这两个URL需要改为真实的URL
     notify_url = "http://18.163.103.199:8000/notification_endpoint"
-    return_url = "http://18.163.103.199:8000/return_url.php"
+    return_url = "http://18.163.103.199:80/#/role"
 
     # 商品名称，改为实际需要的
     name = img_url
@@ -291,7 +291,7 @@ async def create_payment_url(img_url: str, money: str):
 
     # 这两个URL需要改为真实的URL
     notify_url = "http://18.163.103.199:8000/notification_endpoint"
-    return_url = "http://18.163.103.199:8000/return_url.php"
+    return_url = "http://18.163.103.199:80/#/role"
 
     # 商品名称，改为实际需要的
     name = img_url
