@@ -135,7 +135,7 @@ def get_description():
     print("\nsearch_response:")
     # print(search_response)
 
-    ids = [resp["id"] for _, resp in enumerate(search_response)]
+    ids = [resp["id"] for _, resp in enumerate(search_response[1:])]
     print("\nids:")
     print(ids)
     get_response = client.get(
