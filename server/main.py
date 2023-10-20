@@ -15,7 +15,7 @@ from pydantic import BaseModel
 from nextleg_api import generate_image, get_status, upload_image
 
 import zhipuai
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, HTMLResponse
 from PIL import Image
 from io import BytesIO
 from pymilvus import MilvusClient
@@ -279,7 +279,7 @@ async def create_payment(img_url: str, money: str):
     print(f"url: {url}")
     response = requests.post('https://api.payqqpay.cn/submit.php', data=data)
 
-    return response.content
+    return HTMLResponse(content=response.content,  status_code=200)
 
 
 @app.post("/create_payment_url")
