@@ -326,7 +326,7 @@ def generate_payment_qrcode(img_url: str, price: str):
     pid = PAY_PID  # Your merchant ID
     out_trade_no = generate_out_trade_no(img_url)
     notify_url = "http://18.163.103.199:8000/notification_endpoint"
-    return_url = "http://18.163.103.199:8000/return_url.php"
+    return_url = "http://18.163.103.199:80/"
     name = "Test"  # Or any product name
     clientip = "127.0.0.1"  # Or any suitable client IP retrieval
     device = "mobile"  # Or any device determining mechanism string
