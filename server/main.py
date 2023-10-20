@@ -333,9 +333,10 @@ def generate_payment_qrcode(img_url: str, price: str):
     sign_type = "MD5"
 
     # Prepare data for sign generation
+    type = 'alipay'
     data = {
         'pid': pid,
-        'type': 'wxpay',
+        'type': type,
         'out_trade_no': out_trade_no,
         'notify_url': notify_url,
         'return_url': return_url,
