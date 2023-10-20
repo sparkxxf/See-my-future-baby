@@ -243,8 +243,7 @@ PAY_API_KEY = "zKGn788HKhwgDZj7h08KW7GhHhhHKdYH"
 PAY_PID = 2833
 
 
-@app.post("/create_payment")
-async def create_payment(img_url: str, money: str):
+def get_payment_html(img_url: str, money: str):
     # 商户ID，需要填写真实的
     pid = PAY_PID
 
@@ -273,13 +272,32 @@ async def create_payment(img_url: str, money: str):
     # Generate sign and add it to data
     data['sign'] = generate_sign(data, key=PAY_API_KEY)
 
-    
+
     url = f"https://api.payqqpay.cn/submit.php?pid={pid}&type={type}&out_trade_no={out_trade_no}" \
           f"&notify_url={notify_url}&return_url={return_url}&name={name}&money=0.01&sitename=miaowa&sign={data['sign']}&sign_type=MD5"
     print(f"url: {url}")
     response = requests.post('https://api.payqqpay.cn/submit.php', data=data)
+    return response
 
-    return HTMLResponse(content=response.content,  status_code=200)
+
+@app.post("/create_payment")
+async def create_payment(img_url: str, money: str):
+    response = get_payment_html(img_url, money)
+    return HTMLResponse(response.content, status_code=200)
+
+
+@app.post("/create_payment_file")
+async def create_payment_file(img_url: str, money: str):
+    response = get_payment_html(img_url, money)
+
+    timestamp = datetime.now()  # get current time
+    filename = f"{timestamp.strftime('%Y%m%d%H%M%S')}-{img_url}"  # append timestamp to filename
+    # content = response.content.replace("\\n", "\n").replace('\\"', '\"').replace('\\t', '\t')
+    filepath = os.path.join(images_directory, filename)
+    with open(filepath, "wb") as fp:
+        fp.write(response.content)
+
+    return FileResponse(filepath, status_code=200)
 
 
 @app.post("/create_payment_url")
