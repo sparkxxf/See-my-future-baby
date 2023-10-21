@@ -256,7 +256,7 @@ def get_payment_html(img_url: str, money: str):
 
     # 商品名称，改为实际需要的
     name = img_url
-    type = 'wxpay'
+    type = 'alipay'
 
     data = {
         'pid': pid,
