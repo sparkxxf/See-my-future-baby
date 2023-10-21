@@ -244,7 +244,7 @@ TEST_KEY = "WBZHZWBeheKhWZcKuGRlb8lKWzwCWUeH"
 TEST_PID = 1000
 PAY_API_KEY = "zKGn788HKhwgDZj7h08KW7GhHhhHKdYH"
 PAY_PID = 2833
-RETURN_URL = "paid"
+RETURN_URL = "http://18.163.103.199:81"
 
 @app.get("/order_status")
 def order_status(trade_no: str):
