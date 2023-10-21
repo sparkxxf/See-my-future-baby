@@ -258,7 +258,7 @@ def order_status(trade_no: str):
 
     response = httpx.get(base_url, params=params)
 
-    return json.loads(response.content)['code']
+    return json.loads(response.content)['status']
 
 
 def get_payment_html(img_url: str, money: str):
