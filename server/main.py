@@ -235,7 +235,9 @@ def generate_sign(data: Dict[str, str], key: str) -> str:
 
 def generate_out_trade_no(img_url: str) -> str:
     # Implement your trade number generation here
-    return img_url
+
+    timestamp = datetime.now()  # get current time
+    return timestamp.strftime('%Y%m%d%H%M%S')
 
 
 TEST_KEY = "WBZHZWBeheKhWZcKuGRlb8lKWzwCWUeH"
