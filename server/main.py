@@ -211,6 +211,7 @@ def get_content():
     return response
 
 
+
 def generate_sign(data: Dict[str, str], key: str) -> str:
     # Remove sign, sign_type and empty values
     valid_data = {k: v for k, v in data.items() if k not in ("sign", "sign_type") and v is not None}
@@ -241,6 +242,23 @@ TEST_KEY = "WBZHZWBeheKhWZcKuGRlb8lKWzwCWUeH"
 TEST_PID = 1000
 PAY_API_KEY = "zKGn788HKhwgDZj7h08KW7GhHhhHKdYH"
 PAY_PID = 2833
+RETURN_URL = ""
+
+@app.get("/order_status")
+def order_status(trade_no: str):
+    base_url = "https://api.payqqpay.cn/api.php"
+    pid = PAY_PID
+    key = PAY_API_KEY
+    params = {
+        "act": "order",
+        "pid": pid,
+        "key": key,
+        "trade_no": trade_no,
+    }
+
+    response = httpx.get(base_url, params=params)
+
+    return json.loads(response.content)['code']
 
 
 def get_payment_html(img_url: str, money: str):
@@ -252,7 +270,7 @@ def get_payment_html(img_url: str, money: str):
 
     # 这两个URL需要改为真实的URL
     notify_url = "http://18.163.103.199:8000/notification_endpoint"
-    return_url = "http://18.163.103.199:80/role"
+    return_url = RETURN_URL
 
     # 商品名称，改为实际需要的
     name = img_url
@@ -310,7 +328,7 @@ async def create_payment_url(img_url: str, money: str):
 
     # 这两个URL需要改为真实的URL
     notify_url = "http://18.163.103.199:8000/notification_endpoint"
-    return_url = "http://18.163.103.199:80/role"
+    return_url = RETURN_URL
 
     # 商品名称，改为实际需要的
     name = img_url
@@ -344,7 +362,7 @@ def generate_payment_qrcode(img_url: str, price: str):
     pid = PAY_PID  # Your merchant ID
     out_trade_no = generate_out_trade_no(img_url)
     notify_url = "http://18.163.103.199:8000/notification_endpoint"
-    return_url = "http://18.163.103.199:80/"
+    return_url = RETURN_URL
     name = "Test"  # Or any product name
     clientip = "127.0.0.1"  # Or any suitable client IP retrieval
     device = "mobile"  # Or any device determining mechanism string
