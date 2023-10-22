@@ -148,8 +148,8 @@ def get_description():
     content = (f"use multiple contexts in <context></context> quote to generate response:"
                f"<context>{joined_description}</context>"
                f"strictly follow the format example, with header in the <context></context> quote"
-               f"<context>性格兴趣：</context> 小时候的她，活泼且才华洋溢，怀揣音乐梦，她乐观的性格引领未来之路。\n\n"
-               f"<context>养育成本：</context> 未来10年，你需要为孩子的音乐教育预算500万！"
+               f"<context>性格兴趣：</context> 小时候的她，活泼且才华洋溢，怀揣{vocation}梦，她乐观的性格引领未来之路。\n\n"
+               f"<context>养育成本：</context> 未来10年，你需要为孩子的{vocation}教育预算500万！"
                f"生成以{traits}为性格,{name}为偶像的孩子的两句短话：")
 
     print("\ncontent:")
@@ -607,8 +607,8 @@ async def merge_image(user_url: str, demo_img_url: str):
     except Exception as e:
         print(f"Error: {str(e)}")
 
-    description = (f"性格兴趣： 小时候的她，活泼且才华洋溢，怀揣音乐梦，她乐观的性格引领未来之路。"
-                   f"养育成本： 未来10年，你需要为孩子的音乐教育预算500万！")
+    description = (f"性格兴趣： 小时候的她，活泼且才华洋溢，怀揣画家梦，她乐观的性格引领未来之路。"
+                   f"养育成本： 未来10年，你需要为孩子的绘画教育预算500万！")
     try:
         description = get_description()
     except Exception as e:
