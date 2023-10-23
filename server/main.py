@@ -456,7 +456,7 @@ async def process_notification(notify_request: NotifyRequest):
 
 
 images_directory = "user-imgs"
-ADDRESS = "http://16.162.228.147:8000"
+ADDRESS = "https://api.fantasybabys.com"
 
 
 @app.get("/images/{filename}")
@@ -557,8 +557,8 @@ async def merge_image(user_url: str, demo_img_url: str):
     result_data = random.choice(BACKUP_IMG)
     async def merge_process():
         # 1. Upload the images
-        url1 = upload_image(url_to_filepath(user_url))
-        url2 = upload_image(url_to_filepath(demo_img_url))
+        url1 = user_url
+        url2 = demo_img_url
 
         # 2. Generate an image with the two uploaded images and a prompt
         prompt_message = "4 years old little baby, cute, child of {url1} and {url2} --v 5"
