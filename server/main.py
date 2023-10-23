@@ -244,7 +244,8 @@ TEST_KEY = "WBZHZWBeheKhWZcKuGRlb8lKWzwCWUeH"
 TEST_PID = 1000
 PAY_API_KEY = "zKGn788HKhwgDZj7h08KW7GhHhhHKdYH"
 PAY_PID = 2833
-RETURN_URL = "http://18.163.103.199:81"
+RETURN_URL = "http://16.162.228.147:81/"
+NOTIFY_URL = "http://16.162.228.147:8000/notification_endpoint"
 
 @app.get("/order_status")
 def order_status(trade_no: str):
@@ -271,7 +272,7 @@ def get_payment_html(img_url: str, money: str):
     out_trade_no = '20160806151343349'
 
     # 这两个URL需要改为真实的URL
-    notify_url = "http://18.163.103.199:8000/notification_endpoint"
+    notify_url = NOTIFY_URL
     return_url = RETURN_URL
 
     # 商品名称，改为实际需要的
@@ -329,7 +330,7 @@ async def create_payment_url(img_url: str, money: str):
     out_trade_no = '20160806151343349'
 
     # 这两个URL需要改为真实的URL
-    notify_url = "http://18.163.103.199:8000/notification_endpoint"
+    notify_url = NOTIFY_URL
     return_url = RETURN_URL
 
     # 商品名称，改为实际需要的
@@ -363,7 +364,7 @@ async def create_payment_url(img_url: str, money: str):
 def generate_payment_qrcode(img_url: str, price: str):
     pid = PAY_PID  # Your merchant ID
     out_trade_no = generate_out_trade_no(img_url)
-    notify_url = "http://18.163.103.199:8000/notification_endpoint"
+    notify_url = NOTIFY_URL
     return_url = RETURN_URL
     name = "Test"  # Or any product name
     clientip = "127.0.0.1"  # Or any suitable client IP retrieval
@@ -455,7 +456,7 @@ async def process_notification(notify_request: NotifyRequest):
 
 
 images_directory = "user-imgs"
-ADDRESS = "http://18.163.103.199:8000"
+ADDRESS = "http://16.162.228.147:8000"
 
 
 @app.get("/images/{filename}")
@@ -487,20 +488,6 @@ async def create_upload_file(file: UploadFile = File(...)):
     except Exception as e:
         print(f"Error: {e}")  # print out the error
         raise HTTPException(status_code=400, detail="File upload failed.")
-
-
-# merge file
-# @app.post("/merge")
-# def merge_image(user_url: str, parent_id: int):
-
-#     demo_img_url = "http://121.40.29.191:8000/images/20231014095827-ic_woman.png"
-#     demo_imgs = [demo_img_url]*4
-#     demo_description = "小杰是个充满好奇心的孩子，他总是活力充沛、充满热情地探索世界。他找到微观世界中隐藏的秘密，因为他总是会细心地观察、思考。他观察蚂蚁如何建立蚁巢，他细心地记下他们的轨迹和行为。这些特质使得小杰在成长过程中学会了独立解决问题，并从中获取快乐。"
-#     print(f"user_url: {user_url}, parent_id: {parent_id}")
-#     return { "code": 200, "description": demo_description,
-#             "images": demo_imgs,
-#             "merged_url": demo_img_url, "msg": "success" }
-
 
 
 async def download_and_save_image(image_url: str):
