@@ -256,7 +256,7 @@ def order_status(trade_no: str):
         "act": "order",
         "pid": pid,
         "key": key,
-        "trade_no": trade_no,
+        "out_trade_no": trade_no,
     }
 
     response = httpx.get(base_url, params=params)
