@@ -587,7 +587,7 @@ async def merge_image(user_url: str, demo_img_url: str):
         return result_data
 
     try:
-        result_data = await asyncio.wait_for(merge_process(), timeout=80)
+        result_data = await asyncio.wait_for(merge_process(), timeout=70)
         await manage_and_save_backup_img(result_data)
     except asyncio.TimeoutError:
         print("Error: The merging process took too long!")
