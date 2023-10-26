@@ -245,7 +245,7 @@ TEST_PID = 1000
 PAY_API_KEY = "zKGn788HKhwgDZj7h08KW7GhHhhHKdYH"
 PAY_PID = 2833
 RETURN_URL = "http://16.162.228.147:81/"
-NOTIFY_URL = "http://16.162.228.147:8000/notification_endpoint"
+NOTIFY_URL = "https://www.google.com"
 
 @app.get("/order_status")
 def order_status(trade_no: str):
